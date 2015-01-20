@@ -332,10 +332,11 @@
                         else return false;
                     });
 
-                    if (result) for (var i = 0; i < 9; i++)
+                    if (result) for (var i = 0; i < 9; i++) {
                         //mask[i].cell.addClass('error');
-                        mask[i].cell.error = true;
-
+                        SudokuInstance.state._cell[mask[i].cell[0]][mask[i].cell[1]].error = true;
+                        console.log('mask[i]', mask[i], SudokuInstance.state._masks, i);
+                    }
                     return result;
                 };
 
@@ -399,6 +400,8 @@
 
                 for (i = 0; i < 9; i++){
                     candidates = mask[i].candidates;
+                    console.log(mask[i].candidates);
+                    candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[0]];
                     length = candidates.length;
                     if (length != 1){
                         candidates.difference(removed, true);
@@ -751,13 +754,13 @@
                 for (j = 1; j <= 9; j++){
                     _masks['rows'][i].push({
                         'coords': {'i': i, 'j': j},
-                        'cell': _cell[i][j],
-                        'candidates': _candidates[i][j]
+                        'cell': [i, j],
+                        'candidates': [i, j]
                     });
                     _masks['cols'][i].push({
                         'coords': {'i': j, 'j': i},
-                        'cell': _cell[j][i],
-                        'candidates': _candidates[j][i]
+                        'cell': [j, i],
+                        'candidates': [j, i]
                     });
                 }
             }
@@ -774,9 +777,9 @@
                         for (j = 1; j <= 3; j++){
                             var abs_j = j + (3 * (J - 1));
                             _masks['blocks'][I][J].push({
-                                'cell': _cell[abs_i][abs_j],
+                                'cell': [abs_i, abs_j],
                                 'coords': {'i': abs_i, 'j': abs_j},
-                                'candidates': _candidates[abs_i][abs_j]
+                                'candidates': [abs_i, abs_j]
                             });
                         }
                     }
@@ -944,7 +947,8 @@
                             
                             var classNames = [
                                 cell.hasOwnProperty('selected') && cell.selected ? 'selected' : '',
-                                cell.hasOwnProperty('userDefined') && cell.userDefined ? 'user-defined' : ''
+                                cell.hasOwnProperty('userDefined') && cell.userDefined ? 'user-defined' : '',
+                                cell.hasOwnProperty('error') && cell.error ? 'error' : ''
                             ];
                             
                             cells[I][J][i].push(<td 
