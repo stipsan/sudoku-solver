@@ -203,13 +203,14 @@
             },
 
             writeNumberToSelected = function(num){
-                _cell[selected_row][selected_col].set({
+                /*_cell[selected_row][selected_col].set({
                     'class': 'user-defined selected',
                     'html': num
-                });
-                /*SudokuInstance.state._cell[selected_row][selected_col].selected = true;
-                SudokuInstance.state._cell[selected_row][selected_col].userDefined = num;
-                SudokuInstance.forceUpdate();*/
+                });*/
+                SudokuInstance.state._cell[selected_row][selected_col].selected = true;
+                SudokuInstance.state._cell[selected_row][selected_col].userDefined = true;
+                SudokuInstance.state._cell[selected_row][selected_col].html = num;
+                SudokuInstance.forceUpdate();
             },
 
 
@@ -255,14 +256,19 @@
                     for (var j = 1; j < 10; j++){
                         var cell = _cell[i][j],
                             candidates = _candidates[i][j];
-
+                        
+                        if(SudokuInstance.state._cell[i][j].userDefined) SudokuInstance.state._candidates[i][j].clear(SudokuInstance.state._cell[i][j].html);
+                        else SudokuInstance.state._candidates[i][j].add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+                        
+                        //SudokuInstance.state._cell[i][j].html = false;
+    
                         if (cell.hasClass('user-defined')) candidates.clear(+cell.get('html'));
                         else candidates.add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-                        cell.erase('html');
+                        //cell.erase('html');
                     }
                 }
-                SudokuInstance.setState({_candidates: _candidates});
+                SudokuInstance.forceUpdate();
                 return !errors();
             },
 
@@ -276,12 +282,12 @@
                 for (var i = 1; i < 10; i++){
                     for (var j = 1; j < 10; j++){
                         cell = _cell[i][j];
-                        cell.erase('html');
+                        //cell.erase('html');
                         candidates = _candidates[i][j];
                         num_candidates = candidates.length;
 
                         if (num_candidates == 1){
-                            cell.set('html', candidates.toString(""));
+                            //cell.set('html', candidates.toString(""));
                             solved++;
                         } else {
                             contents = "";
@@ -294,7 +300,7 @@
                                 contents += (k % 3 == 0) ? '\n' : ' ';
                             }
 
-                            new Element("pre", {'text': contents}).inject(cell);
+                            //new Element("pre", {'text': contents}).inject(cell);
                         }
                     }
                 }
@@ -666,7 +672,12 @@
                 setBar(0);
                 for(var i = 1; i <= 9; i++)
                     for(var j = 1; j <= 9; j++)
-                        _cell[i][j].set({'class': '', 'html': ''});
+                        SudokuInstance.state._cell[i][j].html = '';
+                        
+                        
+                        SudokuInstance.state._cell[i][j].selected = false;
+                        SudokuInstance.state._cell[i][j].userDefined = false; 
+                        //_cell[i][j].set({'class': '', 'html': ''});
 
                 moveSelected(1,1);
             },
@@ -804,7 +815,7 @@
                 [40,57,39,38,55,39,40,52,40,53,40,40,37,51,40,40,40,50,37,40,53,39,39,39,56,38,54,38,51,39,49,38,54,38,37,38,52,38,38,38,39,51,40,40,40,39,53,39,38,50,39,40,54,39,56,40,57,40,40,37,37,53,40,40,52,39,55]
             ];
 
-            clear();
+            //clear();
             moveSelected(1, 1);
         return {
             'setSelected': function(i,j){
@@ -897,13 +908,14 @@
                             
                             var abs_j = j + (3 * (J - 1));
                             var cell = this.state._cell[abs_i][abs_j];
-                            var html = cell.userDefined || '';
+                            
+                            //if(!cell.hasOwnProperty('html')) cell.html = '';
                             
                             var candidates = this.state._candidates[abs_i][abs_j];
                             var num_candidates = candidates.length;
                             
-                            if (num_candidates == 1){
-                                html = candidates.toString("");
+                            if (num_candidates == 1 || cell.hasOwnProperty('userDefined') && cell.userDefined){
+                                cell.html = cell.html;
                                 solved++;
                             } else {
                                 var contents = "";
@@ -917,7 +929,7 @@
                                 }
                                 
                                 //This causes an error
-                                //html = <pre ref={"candidates"+abs_i+""+abs_j}>{contents}</pre>;
+                                cell.html = <pre ref={"candidates"+abs_i+""+abs_j}>{contents}</pre>;
                             }
                             
                             /*_masks['blocks'][I][J].push({
@@ -936,7 +948,7 @@
                                 id={"c"+abs_i+""+abs_j}
                                 ref={"c"+abs_i+""+abs_j}
                             >
-                                {html}
+                                {cell.html}
                             </td>);
                         }
                         
@@ -953,7 +965,6 @@
                 blocks.include(<tr>{cols[I]}</tr>);
                 
                 solved = Math.round((solved/81)*100);
-                //setBar(solved);
             }
             
             return (<div id="sudoku_wrapper">
@@ -963,78 +974,6 @@
                             (d for demo, c to clear, backspace to delete)
                         </caption>
                     <tbody>{blocks}</tbody>
-                    <tr>
-                        <td>
-                            <table className="block" id="b11">
-                                <tr><td id="c11"></td><td id="c12"></td><td id="c13"></td></tr>
-                                <tr><td id="c21"></td><td id="c22"></td><td id="c23"></td></tr>
-                                <tr><td id="c31"></td><td id="c32"></td><td id="c33"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block" id="b12">
-                                <tr><td id="c14"></td><td id="c15"></td><td id="c16"></td></tr>
-                                <tr><td id="c24"></td><td id="c25"></td><td id="c26"></td></tr>
-                                <tr><td id="c34"></td><td id="c35"></td><td id="c36"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block" id="b13">
-                                <tr><td id="c17"></td><td id="c18"></td><td id="c19"></td></tr>
-                                <tr><td id="c27"></td><td id="c28"></td><td id="c29"></td></tr>
-                                <tr><td id="c37"></td><td id="c38"></td><td id="c39"></td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td>
-                            <table className="block" id="b21">
-                                <tr><td id="c41"></td><td id="c42"></td><td id="c43"></td></tr>
-                                <tr><td id="c51"></td><td id="c52"></td><td id="c53"></td></tr>
-                                <tr><td id="c61"></td><td id="c62"></td><td id="c63"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block" id="b22">
-                                <tr><td id="c44"></td><td id="c45"></td><td id="c46"></td></tr>
-                                <tr><td id="c54"></td><td id="c55"></td><td id="c56"></td></tr>
-                                <tr><td id="c64"></td><td id="c65"></td><td id="c66"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block"  id="b23">
-                                <tr><td id="c47"></td><td id="c48"></td><td id="c49"></td></tr>
-                                <tr><td id="c57"></td><td id="c58"></td><td id="c59"></td></tr>
-                                <tr><td id="c67"></td><td id="c68"></td><td id="c69"></td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td>
-                            <table className="block" id="b31">
-                                <tr><td id="c71"></td><td id="c72"></td><td id="c73"></td></tr>
-                                <tr><td id="c81"></td><td id="c82"></td><td id="c83"></td></tr>
-                                <tr><td id="c91"></td><td id="c92"></td><td id="c93"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block"  id="b32">
-                                <tr><td id="c74"></td><td id="c75"></td><td id="c76"></td></tr>
-                                <tr><td id="c84"></td><td id="c85"></td><td id="c86"></td></tr>
-                                <tr><td id="c94"></td><td id="c95"></td><td id="c96"></td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="block"  id="b33">
-                                <tr><td id="c77"></td><td id="c78"></td><td id="c79"></td></tr>
-                                <tr><td id="c87"></td><td id="c88"></td><td id="c89"></td></tr>
-                                <tr><td id="c97"></td><td id="c98"></td><td id="c99"></td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
                 </table>
                 <div id="completion">
                     <div id="bar" style={{
