@@ -253,15 +253,9 @@ table.block tr td.error {
   height: 100%;
   width: 0;
   background-color: transparent;
-  -webkit-transition-property: width, background-color;
-  -webkit-transition-duration: 500ms;
-  -webkit-transition-timing-function: ease-in-out;
-  -moz-transition-property: width, background-color;
-  -moz-transition-duration: 500ms;
-  -moz-transition-timing-function: ease-in-out;
-  -o-transition-property: width, background-color;
-  -o-transition-duration: 500ms;
-  -o-transition-timing-function: ease-in-out;
+  transition-property: width, background-color;
+  transition-duration: 500ms;
+  transition-timing-function: ease-in-out;
 }
 #output-wrapper {
   display: none;
