@@ -134,7 +134,7 @@
             }
         };
 
-    var Sudoku = function(){
+    var Sudoku = function(SudokuInstance){
         // private variables:
         var _cell,
             _candidates, // 2d array that will conatain all the markup information
@@ -824,7 +824,7 @@
         },
         
         componentDidMount: function(){
-            var sudoku = Sudoku();
+            var sudoku = Sudoku(this);
             
             window.Sudoku = sudoku;
             
