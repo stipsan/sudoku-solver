@@ -816,6 +816,13 @@
     
     
     var Handler = React.createClass({
+        
+        getInitialState: function(){
+            return {
+                percentage: 0
+            };
+        },
+        
         componentDidMount: function(){
             var sudoku = Sudoku();
             
@@ -965,5 +972,7 @@
         }
     });
 
-    React.render(<Handler />, document.getElementById('bootstrap'));    
+    var SudokuInstance = React.render(<Handler />, document.getElementById('bootstrap'));
+    
+    window.SudokuInstance = SudokuInstance;
 })();

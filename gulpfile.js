@@ -100,7 +100,7 @@ gulp.task('markup:dist', function() {
     return gulp.src(src + "/www/**")
     .pipe(htmlreplace({
         'css': 'css/sudoku.css?'+(new Date()).getTime(),
-        'js': 'js/sudoku.js?'+(new Date()).getTime()
+        'js': 'js/sudoku.min.js?'+(new Date()).getTime()
     }))
     .pipe(gulp.dest(dist));
 });
@@ -145,11 +145,40 @@ gulp.task('less:dist', function () {
 
 gulp.task('build', ['markup:build', 'less:build'], function() {});
 
-gulp.task('dist', ['markup:dist', 'webpack:dist', 'less:dist'], function() {});
+gulp.task('dist', ['markup:dist', 'webpack:dist.min', 'less:dist'], function() {});
 
 gulp.task('webpack:dist', function(callback) {
     // Modify some webpack config options
     var myConfig = Object.create(webpackConfig);
+    
+    myConfig.plugins = myConfig.plugins.concat(
+        new webpack.DefinePlugin({
+            DEBUG: false,
+            'process.env': {
+                'NODE_ENV': JSON.stringify('production')
+            }
+        }),
+        new webpack.optimize.DedupePlugin()
+    );
+    
+    // Run webpack
+    webpack(myConfig, function(err, stats) {
+        if (err) {
+            throw new gutil.PluginError('webpack:build', err);
+        }
+        
+        gutil.log('[webpack:build]', stats.toString({
+            colors: true
+        }));
+        
+        callback();
+    });
+});
+gulp.task('webpack:dist.min', ['webpack:dist'], function(callback) {
+    // Modify some webpack config options
+    var myConfig = Object.create(webpackConfig);
+    
+    myConfig.output.filename = 'sudoku.min.js';
     
     myConfig.plugins = myConfig.plugins.concat(
         new webpack.DefinePlugin({
@@ -186,7 +215,7 @@ gulp.task('webpack:dist', function(callback) {
 gulp.task('watch', ['webpack:watch', 'less:watch', 'markup:watch'], function() {});
 
 gulp.task('webpack:watch', function () {
-    gulp.watch('./src/app/**/*.js', ['webpack:dist']);
+    gulp.watch('./src/app/**/*.js', ['webpack:dist.min']);
 });
 gulp.task('markup:watch', function () {
     gulp.watch('./src/www/index.html', ['markup:build', 'markup:dist']);
