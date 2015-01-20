@@ -43,8 +43,7 @@ var serverConfig = {
     target: "web",
     debug: true,
     devtool: "source-map",
-    hot: true,
-    entry: ['webpack/hot/dev-server', './src/app/sudoku.jsx'],
+    entry: './src/app/sudoku.jsx',
     output: {
         path: path.join(__dirname, 'build', 'js'),
         publicPath: 'js/',
@@ -92,7 +91,7 @@ gulp.task('markup:build', function() {
     return gulp.src(src + "/www/**")
     .pipe(htmlreplace({
         'css': '/css/sudoku.css',
-        'js': ['http://localhost:8080/webpack-dev-server.js', 'js/sudoku.js']
+        'js': ['lib/mootools-core.js', 'js/sudoku.js']
     }))
     .pipe(gulp.dest(build));
 });

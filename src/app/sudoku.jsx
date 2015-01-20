@@ -823,10 +823,18 @@
             };
         },
         
+        getDefaultProps: function(){
+            return {
+                bar_gradient: Gradient('F08080','90EE90',101)
+            };
+        },
+        
         componentDidMount: function(){
             var sudoku = Sudoku(this);
             
             window.Sudoku = sudoku;
+            
+            console.log(this.props);
             
             document.addEvent('keydown', function(e){
                 return sudoku.keyStroke(e.code);
@@ -963,7 +971,10 @@
                     
                 </table>
                 <div id="completion">
-                    <div id="bar">&nbsp;</div>
+                    <div id="bar" style={{
+                        width: this.state.percentage + "%", 
+                        backgroundColor: this.props.bar_gradient[this.state.percentage]
+                    }}>&nbsp;</div>
                 </div>
                 <div id="output-wrapper">
                     <pre id="output"></pre>
@@ -972,7 +983,5 @@
         }
     });
 
-    var SudokuInstance = React.render(<Handler />, document.getElementById('bootstrap'));
-    
-    window.SudokuInstance = SudokuInstance;
+    React.render(<Handler />, document.getElementById('bootstrap'));
 })();

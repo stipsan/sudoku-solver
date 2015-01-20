@@ -869,10 +869,18 @@
 	            };
 	        },
 	        
+	        getDefaultProps: function(){
+	            return {
+	                bar_gradient: Gradient('F08080','90EE90',101)
+	            };
+	        },
+	        
 	        componentDidMount: function(){
 	            var sudoku = Sudoku(this);
 	            
 	            window.Sudoku = sudoku;
+	            
+	            console.log(this.props);
 	            
 	            document.addEvent('keydown', function(e){
 	                return sudoku.keyStroke(e.code);
@@ -1009,7 +1017,10 @@
 	                    
 	                ), 
 	                React.createElement("div", {id: "completion"}, 
-	                    React.createElement("div", {id: "bar"}, " ")
+	                    React.createElement("div", {id: "bar", style: {
+	                        width: this.state.percentage + "%", 
+	                        backgroundColor: this.props.bar_gradient[this.state.percentage]
+	                    }}, " ")
 	                ), 
 	                React.createElement("div", {id: "output-wrapper"}, 
 	                    React.createElement("pre", {id: "output"})
@@ -1018,9 +1029,7 @@
 	        }
 	    });
 
-	    var SudokuInstance = React.render(React.createElement(Handler, null), document.getElementById('bootstrap'));
-	    
-	    window.SudokuInstance = SudokuInstance;
+	    React.render(React.createElement(Handler, null), document.getElementById('bootstrap'));
 	})();
 
 /***/ },
