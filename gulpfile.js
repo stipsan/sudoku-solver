@@ -99,8 +99,8 @@ gulp.task('markup:build', function() {
 gulp.task('markup:dist', function() {
     return gulp.src(src + "/www/**")
     .pipe(htmlreplace({
-        'css': '/css/sudoku.css?'+(new Date()).getTime(),
-        'js': '/js/sudoku.js?'+(new Date()).getTime()
+        'css': 'css/sudoku.css?'+(new Date()).getTime(),
+        'js': 'js/sudoku.js?'+(new Date()).getTime()
     }))
     .pipe(gulp.dest(dist));
 });
