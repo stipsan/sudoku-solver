@@ -253,8 +253,11 @@ table.block tr td.error {
   height: 100%;
   width: 0;
   background-color: transparent;
+  -webkit-transition-property: width, background-color;
   transition-property: width, background-color;
+  -webkit-transition-duration: 500ms;
   transition-duration: 500ms;
+  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
 }
 #output-wrapper {

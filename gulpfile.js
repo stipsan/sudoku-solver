@@ -134,7 +134,7 @@ gulp.task('less:dist', function () {
         this.emit('end');
     }))
     .pipe(less({
-        plugins: [/*autoprefix, /*cleancss*/]
+        plugins: [autoprefix, /*cleancss*/]
     }))
     .pipe(gulp.dest(dist+'/css'))
     .pipe(livereload());
