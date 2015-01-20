@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/stipsan/sudoku-solver/issues"
   },
-  "homepage": "https://github.com/stipsan/sudoku-solver"
+  "homepage": "https://github.com/stipsan/sudoku-solver",
+  "devDependencies": {
+    "gh-pages": "^0.2.0",
+    "gulp": "^3.8.10",
+    "gulp-notify": "^2.1.0"
+  }
 }
