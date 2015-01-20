@@ -189,10 +189,13 @@
             },
 
             moveSelected = function(i, j){
-                _cell[selected_row][selected_col].removeClass("selected");
+                SudokuInstance.state._cell[selected_row][selected_col].selected = false;
+                //_cell[selected_row][selected_col].removeClass("selected");
                 selected_row = i;
                 selected_col = j;
-                _cell[selected_row][selected_col].addClass("selected");
+                SudokuInstance.state._cell[selected_row][selected_col].selected = true;
+                //_cell[selected_row][selected_col].addClass("selected");
+                SudokuInstance.forceUpdate();
             },
 
             backspace = function(){
@@ -204,6 +207,9 @@
                     'class': 'user-defined selected',
                     'html': num
                 });
+                /*SudokuInstance.state._cell[selected_row][selected_col].selected = true;
+                SudokuInstance.state._cell[selected_row][selected_col].userDefined = num;
+                SudokuInstance.forceUpdate();*/
             },
 
 
@@ -256,6 +262,7 @@
                         cell.erase('html');
                     }
                 }
+                SudokuInstance.setState({_candidates: _candidates});
                 return !errors();
             },
 
@@ -642,6 +649,8 @@
 
                             if ((index < min_index || index > max_index) && candidates.contains(n)){
                                 candidates.remove(n);
+                                SudokuInstance.state._masks[type][pointers[0][coord]][j].candidates.remove(n);
+                                SudokuInstance.forceUpdate();
                                 changed = true;
                             }
                         }
@@ -663,12 +672,7 @@
             },
 
             setBar = function(percentage){
-                document.id('bar').setStyles({
-                    'width': percentage + "%",
-                    'background-color': bar_gradient[percentage]
-
-                });
-                //SudokuInstance.setState({percentage: percentage});
+                SudokuInstance.setState({percentage: percentage});
             },
 
             toString = function(){
@@ -763,6 +767,13 @@
                     }
                 }
             }
+            
+            SudokuInstance.setState({
+                _cell: _cell,
+                _candidates: _candidates,
+                _masks: _masks
+            });
+            if(DEBUG) console.log(_cell, _candidates, _masks);
 
             // initialize the key codes array;
             keyCodes = [];
@@ -819,8 +830,23 @@
     var Handler = React.createClass({
         
         getInitialState: function(){
+            
+            var _cell = [];
+            var _candidates = [];
+            for (i = 1; i <= 9; i++){
+                _cell[i] = [];
+                _candidates[i] = [];
+                for (j = 1; j <= 9; j++){
+                    _cell[i][j] = {selected: false};
+                    _candidates[i][j] = new Set();
+                }
+            }
+            
+            
             return {
-                percentage: 0
+                percentage: 0,
+                _cell: _cell,
+                _candidates: _candidates
             };
         },
         
@@ -849,42 +875,95 @@
         },
         
         render: function(){
+            
+            var solved = 0;
+            
+            var blocks = [], cols = [], rows = [], cells = [];
+            for (I = 1; I <= 3; I++){
+                rows[I] = [];
+                cols[I] = [];
+                cells[I] = [];
+                
+                for (J = 1; J <= 3; J++){
+                    rows[I][J] = [];
+                    cells[I][J] = [];
+                    
+                    for (i = 1; i <= 3; i++){
+                        cells[I][J][i] = [];
+
+                        var abs_i = i + (3 * (I - 1));
+                        for (j = 1; j <= 3; j++){
+                            
+                            
+                            var abs_j = j + (3 * (J - 1));
+                            var cell = this.state._cell[abs_i][abs_j];
+                            var html = cell.userDefined || '';
+                            
+                            var candidates = this.state._candidates[abs_i][abs_j];
+                            var num_candidates = candidates.length;
+                            
+                            if (num_candidates == 1){
+                                html = candidates.toString("");
+                                solved++;
+                            } else {
+                                var contents = "";
+                                var candidates_array = candidates.toArray();
+                                
+                                for (var k = 1, l = 0; k <= 9; k++){
+                                    if (candidates_array[l] == k) contents += candidates_array[l++].toString();
+                                    else contents += " ";
+                                    
+                                    contents += (k % 3 == 0) ? '\n' : ' ';
+                                }
+                                
+                                //This causes an error
+                                //html = <pre ref={"candidates"+abs_i+""+abs_j}>{contents}</pre>;
+                            }
+                            
+                            /*_masks['blocks'][I][J].push({
+                                'cell': _cell[abs_i][abs_j],
+                                'coords': {'i': abs_i, 'j': abs_j},
+                                'candidates': _candidates[abs_i][abs_j]
+                            });*/
+                            
+                            var classNames = [
+                                cell.hasOwnProperty('selected') && cell.selected ? 'selected' : '',
+                                cell.hasOwnProperty('userDefined') && cell.userDefined ? 'user-defined' : ''
+                            ];
+                            
+                            cells[I][J][i].push(<td 
+                                className={classNames.join(' ')}
+                                id={"c"+abs_i+""+abs_j}
+                                ref={"c"+abs_i+""+abs_j}
+                            >
+                                {html}
+                            </td>);
+                        }
+                        
+                        rows[I][J].include(<tr>
+                            {cells[I][J][i]}
+                        </tr>);
+                    }
+                    
+                    cols[I].include(<td>
+                        <table className="block" id={"b"+I+""+J}><tbody>{rows[I][J]}</tbody></table>
+                    </td>);
+                }
+                
+                blocks.include(<tr>{cols[I]}</tr>);
+                
+                solved = Math.round((solved/81)*100);
+                //setBar(solved);
+            }
+            
             return (<div id="sudoku_wrapper">
                     <table id="sudoku">
                         <caption>
                             <strong>Use arrow and number keys to enter a sudoku</strong><br/>
-                        (d for demo, c to clear, backspace to delete)
-                    </caption>
-                    <tr className="horizontal-labels">
-                        <td>
-                            <table>
-                                <tr><td>&nbsp;</td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="horizontal-labels">
-                                <tr><td>1</td><td>2</td><td>3</td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="horizontal-labels">
-                                <tr><td>4</td><td>5</td><td>6</td></tr>
-                            </table>
-                        </td>
-                        <td>
-                            <table className="horizontal-labels">
-                                <tr><td>7</td><td>8</td><td>9</td></tr>
-                            </table>
-                        </td>
-                    </tr>
+                            (d for demo, c to clear, backspace to delete)
+                        </caption>
+                    <tbody>{blocks}</tbody>
                     <tr>
-                        <td className="vertical-labels">
-                            <table className="vertical-labels">
-                                <tr><td>A</td></tr>
-                                <tr><td>B</td></tr>
-                                <tr><td>C</td></tr>
-                            </table>
-                        </td>
                         <td>
                             <table className="block" id="b11">
                                 <tr><td id="c11"></td><td id="c12"></td><td id="c13"></td></tr>
@@ -909,13 +988,6 @@
                     </tr>
                     
                     <tr>
-                        <td className="vertical-labels">
-                            <table className="vertical-labels">
-                                <tr><td>D</td></tr>
-                                <tr><td>E</td></tr>
-                                <tr><td>F</td></tr>
-                            </table>
-                        </td>
                         <td>
                             <table className="block" id="b21">
                                 <tr><td id="c41"></td><td id="c42"></td><td id="c43"></td></tr>
@@ -940,13 +1012,6 @@
                     </tr>
                     
                     <tr>
-                        <td className="vertical-labels">
-                            <table className="vertical-labels">
-                                <tr><td>G</td></tr>
-                                <tr><td>H</td></tr>
-                                <tr><td>I</td></tr>
-                            </table>
-                        </td>
                         <td>
                             <table className="block" id="b31">
                                 <tr><td id="c71"></td><td id="c72"></td><td id="c73"></td></tr>
@@ -973,9 +1038,9 @@
                 </table>
                 <div id="completion">
                     <div id="bar" style={{
-                        width: this.state.percentage + "%", 
-                        backgroundColor: this.props.bar_gradient[this.state.percentage]
-                    }}>{this.state.percentage}</div>
+                        width: solved + "%", 
+                        backgroundColor: this.props.bar_gradient[solved]
+                    }} />
                 </div>
                 <div id="output-wrapper">
                     <pre id="output"></pre>
