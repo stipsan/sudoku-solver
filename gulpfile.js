@@ -5,9 +5,9 @@ var notify = require('gulp-notify');
 
 gulp.task('publish', function(cb){
     ghpages.publish(path.join(__dirname, 'dist'), {
-        logger: notify.onError(function (error) {
-            return "Message to the notifier: " + error.message;
-        })
+        logger: function(message) {
+            console.log(message);
+        }
     }, function(err) { 
         if (err) return cb(err); // return error
         cb(); // finished task
