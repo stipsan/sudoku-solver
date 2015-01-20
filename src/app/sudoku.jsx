@@ -199,7 +199,10 @@
             },
 
             backspace = function(){
-                _cell[selected_row][selected_col].removeClass('user-defined').erase('html');
+                //_cell[selected_row][selected_col].removeClass('user-defined').erase('html');
+                SudokuInstance.state._cell[selected_row][selected_col].userDefined = false;
+                SudokuInstance.state._cell[selected_row][selected_col].html = '';
+                SudokuInstance.forceUpdate();
             },
 
             writeNumberToSelected = function(num){
@@ -254,16 +257,16 @@
             initialize = function(){
                 for (var i = 1; i < 10; i++){
                     for (var j = 1; j < 10; j++){
-                        var cell = _cell[i][j],
-                            candidates = _candidates[i][j];
+                        var cell = SudokuInstance.state._cell[i][j],
+                            candidates = SudokuInstance.state._candidates[i][j];
                         
                         if(SudokuInstance.state._cell[i][j].userDefined) SudokuInstance.state._candidates[i][j].clear(SudokuInstance.state._cell[i][j].html);
                         else SudokuInstance.state._candidates[i][j].add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
                         
                         //SudokuInstance.state._cell[i][j].html = false;
     
-                        if (cell.hasClass('user-defined')) candidates.clear(+cell.get('html'));
-                        else candidates.add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+                        //if (cell.hasClass('user-defined')) candidates.clear(+cell.get('html'));
+                        //else candidates.add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
                         //cell.erase('html');
                     }
@@ -281,7 +284,7 @@
 
                 for (var i = 1; i < 10; i++){
                     for (var j = 1; j < 10; j++){
-                        cell = _cell[i][j];
+                        cell = SudokuInstance.state._cell[i][j];
                         //cell.erase('html');
                         candidates = _candidates[i][j];
                         num_candidates = candidates.length;
@@ -330,7 +333,8 @@
                     });
 
                     if (result) for (var i = 0; i < 9; i++)
-                        mask[i].cell.addClass('error');
+                        //mask[i].cell.addClass('error');
+                        mask[i].cell.error = true;
 
                     return result;
                 };
@@ -338,14 +342,14 @@
                 // first clear all the previous errors
                 for(i = 1; i <= 9; i++)
                     for(j = 1; j <= 9; j++)
-                        _cell[i][j].removeClass("error");
+                        SudokuInstance.state._cell[i][j].error = false;
 
                 for(i = 1; i <= 3; i++)
                     for(j = 1; j <= 3; j++)
-                        error = check(_masks['blocks'][i][j]) || error;
+                        error = check(SudokuInstance.state._masks['blocks'][i][j]) || error;
 
                 for(i = 1; i <= 9; i++)
-                    error = check(_masks['rows'][i]) || check(_masks['cols'][i]) || error;
+                    error = check(SudokuInstance.state._masks['rows'][i]) || check(SudokuInstance.state._masks['cols'][i]) || error;
 
                 return error;
             },
@@ -377,9 +381,9 @@
                 if (type == 'blocks')
                     for (i = 1; i <= 3; i++)
                         for (j = 1; j <= 3; j++)
-                            changed = funct(_masks[type][i][j]) || changed;
+                            changed = funct(SudokuInstance.state._masks[type][i][j]) || changed;
                 else for (i = 1; i <= 9; i++)
-                    changed = funct(_masks[type][i]) || changed;
+                    changed = funct(SudokuInstance.state._masks[type][i]) || changed;
 
                 return changed;
             },
@@ -588,7 +592,7 @@
 
                 for (var I = 1; I <= 3; I++){  //  foreach block
                     for (var J = 1; J <= 3; J++){
-                        mask = _masks['blocks'][I][J];
+                        mask = SudokuInstance.state._masks['blocks'][I][J];
 
                         for (var n = 1; n <= 9; n++){
                             pointers = [];
@@ -641,7 +645,7 @@
                     for (var i = 0; i < pairs.length; i++){
                         n = pairs[i].n;
                         pointers = pairs[i].pointers;
-                        mask = _masks[type][pointers[0][coord]];
+                        mask = SudokuInstance.state._masks[type][pointers[0][coord]];
                         min_index = 10;  max_index = -1;
 
                         for (var k = 0; k < pointers.length; k++){
@@ -732,7 +736,7 @@
                 _cell[i] = [];
                 _candidates[i] = [];
                 for (j = 1; j <= 9; j++){
-                    _cell[i][j] = document.id("c" + i.toString() + j.toString());
+                    _cell[i][j] = {selected: false, userDefined: false, html: '', error: false}
                     _candidates[i][j] = new Set();
                 }
             }
