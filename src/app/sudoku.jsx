@@ -668,6 +668,7 @@
                     'background-color': bar_gradient[percentage]
 
                 });
+                //SudokuInstance.setState({percentage: percentage});
             },
 
             toString = function(){
@@ -974,7 +975,7 @@
                     <div id="bar" style={{
                         width: this.state.percentage + "%", 
                         backgroundColor: this.props.bar_gradient[this.state.percentage]
-                    }}>&nbsp;</div>
+                    }}>{this.state.percentage}</div>
                 </div>
                 <div id="output-wrapper">
                     <pre id="output"></pre>
