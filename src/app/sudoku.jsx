@@ -260,7 +260,10 @@
                         var cell = SudokuInstance.state._cell[i][j],
                             candidates = SudokuInstance.state._candidates[i][j];
                         
-                        if(SudokuInstance.state._cell[i][j].userDefined) SudokuInstance.state._candidates[i][j].clear(SudokuInstance.state._cell[i][j].html);
+                        if(SudokuInstance.state._cell[i][j].userDefined) {
+                            SudokuInstance.state._candidates[i][j].clear(SudokuInstance.state._cell[i][j].html);
+                            console.log(SudokuInstance.state._cell[i][j].html);
+                        }
                         else SudokuInstance.state._candidates[i][j].add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
                         
                         //SudokuInstance.state._cell[i][j].html = false;
@@ -323,7 +326,8 @@
                         candidates, result;
 
                     result = mask.some(function(info){
-                        candidates = info.candidates;
+                        //candidates = info.candidates;
+                        candidates = SudokuInstance.state._candidates[info.candidates[0]][info.candidates[1]];
                         if (candidates.length == 1){
                             unique = unique.union(candidates);
                             count++;
@@ -335,7 +339,6 @@
                     if (result) for (var i = 0; i < 9; i++) {
                         //mask[i].cell.addClass('error');
                         SudokuInstance.state._cell[mask[i].cell[0]][mask[i].cell[1]].error = true;
-                        console.log('mask[i]', mask[i], SudokuInstance.state._masks, i);
                     }
                     return result;
                 };
@@ -367,6 +370,8 @@
                         return run(type, fn);
                     });
                 });
+                
+                SudokuInstance.forceUpdate();
 
                 if (changed) return true;
 
@@ -395,13 +400,13 @@
                     candidates, length, i;
 
                 for (i = 0; i < 9; i++)
-                    if (mask[i].candidates.length == 1)
-                        removed = removed.union(mask[i].candidates);
-
+                    if (mask[i].candidates.length == 1) {
+                        //removed = removed.union(mask[i].candidates);
+                        removed = removed.union(SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]]);
+                    }
                 for (i = 0; i < 9; i++){
-                    candidates = mask[i].candidates;
-                    console.log(mask[i].candidates);
-                    candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[0]];
+                    //candidates = mask[i].candidates;
+                    candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]];
                     length = candidates.length;
                     if (length != 1){
                         candidates.difference(removed, true);
@@ -421,7 +426,8 @@
                     count = 0;
 
                     for (var i = 0; i < 9; i++){
-                        candidates = mask[i].candidates;
+                        //candidates = mask[i].candidates;
+                        candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]];
 
                         if (candidates.length != 1 && candidates.contains(n)){
                             pointer = candidates;
@@ -445,15 +451,18 @@
                     candidates, i_candidates, j_candidates;
 
                 for (var i = 0; i < 8; i++){  //  try every combination
-                    i_candidates = mask[i].candidates;
+                    //i_candidates = mask[i].candidates;
+                    i_candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]];
                     if (i_candidates.length != 2) continue;
 
                     for (var j = i + 1; j < 9; j++){
-                        j_candidates = mask[j].candidates;
+                        //j_candidates = mask[j].candidates;
+                        j_candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
                         if (j_candidates.length != 2 || !i_candidates.equals(j_candidates)) continue;
 
                         for (var k = 0; k < 9; k++){
-                            candidates = mask[k].candidates;
+                            //candidates = mask[k].candidates;
+                            candidates = SudokuInstance.state._candidates[mask[k].candidates[0]][mask[k].candidates[1]];
                             if (k == i || k == j || candidates.length <= 2) continue;
 
                             if (candidates.intersection(i_candidates).length != 0){
@@ -473,22 +482,26 @@
                     triple;
 
                 for (i = 0; i < 7; i++){
-                    i_candidates = mask[i].candidates;
+                    //i_candidates = mask[i].candidates;
+                    i_candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]];
                     if (i_candidates.length < 2) continue;
 
                     for (j = i + 1; j < 8; j++){
-                        j_candidates = mask[j].candidates;
+                        //j_candidates = mask[j].candidates;
+                        j_candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
                         if (j_candidates.length < 2) continue;
 
                         for (k = j + 1; k < 9; k++){
-                            k_candidates = mask[k].candidates;
+                            //k_candidates = mask[k].candidates;
+                            k_candidates = SudokuInstance.state._candidates[mask[k].candidates[0]][mask[k].candidates[1]];
                             if (k_candidates.length < 2) continue;
 
                             triple = i_candidates.union(j_candidates.union(k_candidates));
                             if (triple.length != 3) continue;
 
                             for (var l = 0; l < 9; l++){
-                                candidates = mask[l].candidates;
+                                //candidates = mask[l].candidates;
+                                candidates = SudokuInstance.state._candidates[mask[l].candidates[0]][mask[l].candidates[1]];
                                 if (l == i || l == j || l == k || candidates.length < 2) continue;
 
                                 if (candidates.intersection(triple).length != 0){
@@ -512,7 +525,8 @@
                     positions[n] = new Set();
 
                     for (j = 0; j < 9; j++){
-                        candidates = mask[j].candidates;
+                        //candidates = mask[j].candidates;
+                        candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
 
                         if (candidates.length != 1 && candidates.contains(n))
                             positions[n].add(j + 1);
@@ -526,7 +540,8 @@
                         if (!positions[n].equals(positions[m])) continue;
 
                         for (j = 0; j < 9; j++){
-                            candidates = mask[j].candidates;
+                            //candidates = mask[j].candidates;
+                            candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
 
                             if (positions[n].contains(j + 1) && candidates.length > 2){
                                 changed = true;
@@ -550,7 +565,8 @@
                     positions[n] = new Set();
 
                     for (j = 0; j < 9; j++){
-                        candidates = mask[j].candidates;
+                        //candidates = mask[j].candidates;
+                        candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
 
                         if (candidates.length != 1 && candidates.contains(n))
                             positions[n].add(j + 1);
@@ -570,7 +586,8 @@
                             if (triple.length != 3) continue;
 
                             for (j = 0; j < 9; j++){
-                                candidates = mask[j].candidates;
+                                //candidates = mask[j].candidates;
+                                candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
                                 testn = positions[n].contains(j + 1);
                                 testm = positions[m].contains(j + 1);
                                 testl = positions[l].contains(j + 1);
@@ -602,7 +619,8 @@
 
                             for (var i = 0; i < 9; i++){
                                 var info = mask[i],
-                                    candidates = info.candidates,
+                                    //candidates = info.candidates,
+                                    candidates = SudokuInstance.state._candidates[mask[i].candidates[0]][mask[i].candidates[1]];
                                     contains = candidates.contains(n);
 
                                 if (contains && candidates.legnth == 1) break;
@@ -657,12 +675,15 @@
                         }
 
                         for (var j = 0; j < 9; j++){
-                            candidates = mask[j].candidates;
+                            //candidates = mask[j].candidates;
+                            candidates = SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]];
                             index = mask[j].coords[icoord];
 
                             if ((index < min_index || index > max_index) && candidates.contains(n)){
                                 candidates.remove(n);
-                                SudokuInstance.state._masks[type][pointers[0][coord]][j].candidates.remove(n);
+                                //SudokuInstance.state._masks[type][pointers[0][coord]][j].candidates.remove(n);
+                                SudokuInstance.state._candidates[SudokuInstance.state._masks[type][pointers[0][coord]][j].candidates[0]][SudokuInstance.state._masks[type][pointers[0][coord]][j].candidates[1]].remove();
+                                SudokuInstance.state._candidates[mask[j].candidates[0]][mask[j].candidates[1]].remove(n);
                                 SudokuInstance.forceUpdate();
                                 changed = true;
                             }
